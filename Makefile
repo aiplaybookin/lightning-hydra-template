@@ -29,6 +29,10 @@ test-full: ## Run all tests
 train: ## Train the model
 	python src/train.py
 
+build: ## Building the docker image
+	@echo Build docker image.....
+	@docker build -t testimg .
+	
 debug: ## Enter debugging mode with pdb
 	#
 	# tips:
