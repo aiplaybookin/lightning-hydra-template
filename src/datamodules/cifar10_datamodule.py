@@ -9,7 +9,7 @@ from torchvision.transforms import transforms
 
 
 class CIFAR10DataModule(LightningDataModule):
-    """Example of LightningDataModule for MNIST dataset.
+    """Example of LightningDataModule for CIFAR10 dataset.
 
     A DataModule implements 5 key methods:
 
