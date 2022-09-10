@@ -6,7 +6,7 @@ from torchmetrics import MaxMetric
 from torchmetrics.classification.accuracy import Accuracy
 
 
-class CIFAR10LitModule(LightningModule):
+class TIMMLitModule(LightningModule):
     """Example of LightningModule for CIFAR10 classification.
 
     A LightningModule organizes your PyTorch code into 6 sections:

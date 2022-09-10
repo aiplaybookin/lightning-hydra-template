@@ -53,11 +53,14 @@ class CIFAR10DataModule(LightningDataModule):
         # data transformations
         self.transforms = transforms.Compose(
             #-[transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
-            [
+            [   
+                transforms.Resize(224),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]
         )
+
+        self.dims = (3,32,32) #---cifar10 image size 
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
