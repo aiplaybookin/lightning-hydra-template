@@ -16,8 +16,23 @@ tags: ["cifar10", "timm"]
 
 seed: 12345
 
+trainer:
+  min_epochs: 10
+  max_epochs: 10
+  gradient_clip_val: 0.5
+
 model:
+  optimizer:
+    lr: 0.002
   net:
     model_name: resnet18
     pretrained: True
     num_classes: 10 
+
+datamodule:
+  batch_size: 64
+
+logger:
+  wandb:
+    tags: ${tags}
+    group: "cifar10"

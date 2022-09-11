@@ -64,3 +64,9 @@ Volume Mount
 docker run --volume `pwd`:/workspace/project/ pl-hydra-timm:latest python3 src/train.py experiment=cifar.yaml
 
 ```
+
+
+### 5.Include COG into this for inference only (image) (optional)
+
+Inference of any pretrained timm model
+
