@@ -1,12 +1,20 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.9.13-slim
 
-WORKDIR /opt/src
+# Basic setup
+RUN apt update
+RUN apt install -y \
+    build-essential \
+    git \
+    curl \
+    ca-certificates \
+    wget \
+    && rm -rf /var/lib/apt/lists
 
-COPY requirements.txt requirements.txt
+# Set working directory
+WORKDIR /workspace/project
 
-RUN pip3 install -r requirements.txt \
-    && rm -rf /root/.cache/pip
+# Install requirements
+COPY requirements.txt ./
 
-COPY . .
-
-ENTRYPOINT ["python3"]
+RUN pip install --no-cache-dir -r requirements.txt \
+    && rm requirements.txt
