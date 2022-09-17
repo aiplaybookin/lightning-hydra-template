@@ -4,24 +4,25 @@ from torch import nn
 class SimpleDenseNet(nn.Module):
     def __init__(
         self,
-        channels: int = 3, 
-        width: int = 32, 
-        height: int = 32, 
-        num_classes: int = 10, 
-        hidden_size: int = 64, 
-        learning_rate: float = 2e-4,
+        input_size: int = 784,
+        lin1_size: int = 256,
+        lin2_size: int = 256,
+        lin3_size: int = 256,
+        output_size: int = 10,
     ):
         super().__init__()
 
-        self.net = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(channels * width * height, hidden_size),
+        self.model = nn.Sequential(
+            nn.Linear(input_size, lin1_size),
+            nn.BatchNorm1d(lin1_size),
             nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_size, hidden_size),
+            nn.Linear(lin1_size, lin2_size),
+            nn.BatchNorm1d(lin2_size),
             nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_size, num_classes),
+            nn.Linear(lin2_size, lin3_size),
+            nn.BatchNorm1d(lin3_size),
+            nn.ReLU(),
+            nn.Linear(lin3_size, output_size),
         )
 
     def forward(self, x):
@@ -30,7 +31,7 @@ class SimpleDenseNet(nn.Module):
         # (batch, 1, width, height) -> (batch, 1*width*height)
         x = x.view(batch_size, -1)
 
-        return self.net(x)
+        return self.model(x)
 
 
 if __name__ == "__main__":

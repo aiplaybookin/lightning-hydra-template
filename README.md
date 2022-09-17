@@ -70,3 +70,74 @@ docker run --volume `pwd`:/workspace/project/ pl-hydra-timm:latest python3 src/t
 
 Inference of any pretrained timm model
 
+-------------------------------------
+
+# DVC
+
+[Getting started with DVC](https://dvc.org/doc/start/data-management)
+
+Very similar to git commands to manage data verion control
+
+### Install DVC
+
+Installing DVC  
+
+Ubuntu
+```
+sudo wget https://dvc.org/deb/dvc.list -O /etc/apt/sources.list.d/dvc.list
+wget -qO - https://dvc.org/deb/iterative.asc | sudo apt-key add -
+sudo apt update
+sudo apt install dvc
+```
+
+OR 
+
+```
+pip install dvc
+```
+
+When already in git repository - ( you already will have git init, check ```ls -al``` find .git folder)
+```
+dvc init
+```
+
+Now, there will be ```.dvc``` folder created
+
+Add **data** folder to track
+```
+dvc add data
+```
+A new file ```data.dvc``` md5 hash created to track all changes
+
+**autostage**: if enabled, DVC will automatically stage (git add) DVC files created or modified by DVC commands.
+```
+dvc config core.autostage true
+```
+
+**Check remote** where we can push ( this is for git, we need same for dvc)
+```
+git remote -v
+```
+
+5. Go and create a new folder ( now in gdrive ), say lightning-hydra
+
+get into the folder and check the url as below - 
+
+https://drive.google.com/drive/u/1/folders/1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A
+
+folder id - 1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A
+
+Add a remote
+
+```
+dvc remote add gdrive gdrive://1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A
+```
+git add .
+git commit -m "dvc"
+
+
+### NOTE
+
+One folder or file cannot be tracked by both - git or dvc. 
+
+ssh -L 8080:localhost:8080 <ssh string from gitpod>
