@@ -70,7 +70,7 @@ docker run --volume `pwd`:/workspace/project/ pl-hydra-timm:latest python3 src/t
 
 Inference of any pretrained timm model
 
--------------------------------------
+-------------------------------------------------------------------------------------------------------------------------
 
 # DVC
 
@@ -96,25 +96,25 @@ OR
 pip install dvc
 ```
 
-When already in git repository - ( you already will have git init, check ```ls -al``` find .git folder)
+1. When already in git repository - ( you already will have git init, check ```ls -al``` find .git folder)
 ```
 dvc init
 ```
 
 Now, there will be ```.dvc``` folder created
 
-Add **data** folder to track
+2. Add **data** folder to track
 ```
 dvc add data
 ```
 A new file ```data.dvc``` md5 hash created to track all changes
 
-**autostage**: if enabled, DVC will automatically stage (git add) DVC files created or modified by DVC commands.
+3. **autostage**: if enabled, DVC will automatically stage (git add) DVC files created or modified by DVC commands.
 ```
 dvc config core.autostage true
 ```
 
-**Check remote** where we can push ( this is for git, we need same for dvc)
+4. **Check remote** where we can push ( this is for git, we need same for dvc)
 ```
 git remote -v
 ```
@@ -132,12 +132,59 @@ Add a remote
 ```
 dvc remote add gdrive gdrive://1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A
 ```
+
+6. Add folders and files to stage
+```
 git add .
-git commit -m "dvc"
+```
+
+```
+git commit -m "updated dvc"
+```
+
+7. Push the changes to gdrive ( NOTE : give permission to folders and gmail account)
+
+-r : remote, gdrive : name of remote folder
+
+```
+dvc push -r gdrive
+```
+
+------------------------------------------------------------------------------------------------
+
+## DVC Pipelines (DAG)
+
+Read/ Watch [here](https://dvc.org/doc/start/data-management/data-pipelines)
+
+1. Need to have a ```dvc.yaml``` describing stages and dependecies, see below -
+```
+stages:
+  train-mnist:
+    cmd: python3 src/train.py experiment=mnist
+    deps:
+      - data/MNIST
+```
+
+2. To run pipelines, dvc reproduce
+```
+dvc repro train-mnist
+```
+
+3. ...
+
+
+--------------------------------------------------------------------------------------
 
 
 ### NOTE
 
-One folder or file cannot be tracked by both - git or dvc. 
+✨💡✨ One folder or file cannot be tracked by both - git or dvc. 
+
+To fix for gitpod.io
 
 ssh -L 8080:localhost:8080 <ssh string from gitpod>
+
+To see all files/folders, size, users and permisions
+```
+ls -alrth
+```
