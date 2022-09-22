@@ -123,9 +123,9 @@ git remote -v
 
 get into the folder and check the url as below - 
 
-https://drive.google.com/drive/u/1/folders/1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A
+https://drive.google.com/drive/u/1/folders/1ts8OwPOtQGnz1aR4KyPQA2k7FbKR5A
 
-folder id - 1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A
+folder id - 1ts8OwPOtQGnz1aR4KyPQA2k7FbKR5A
 
 Add a remote
 
@@ -174,11 +174,132 @@ dvc repro train-mnist
 
 
 --------------------------------------------------------------------------------------
+## Hyperparameters Tuning
+
+### Optuna
+
+1. lets just run for normal grid search before using optuna
+
+```-m`` because we need multiple runs with different batch
+This will run 4 jobs in parallel
+
+```
+python3 src/train.py -m experiment=mnist datamodule.batch_size=16,32,64,128 tags=["batch_size_exp"]
+```
+
+💡✨ **Median Pruner** : Prune if the trial’s best intermediate result is worse than median of intermediate results of previous trials at the same step.
+
+--------
+
+Pure Optuna example code [here](https://colab.research.google.com/drive/13PFJfRTYR-B_DbzrWdp8iiGF7yUO0qcO?usp=sharing)
+
+**Hydra plugin** for Optuna [here](https://hydra.cc/docs/plugins/optuna_sweeper/)
+
+Setup hydra yaml file under ```configs/hparams_search/mnist_optuna.yaml```
+
+1. Choose metric to be optimised : this should be logged in ```training_step``` of ```model class``` in lightning module! here **MNISTLitModule**
+2. Mention direction : maximise or minimise according to metric used
+3. Total number of trails to run
+4. Choice of Sampler : TPE is bayesian
+5. n_startup_trials: 10 # number of random sampling runs before optimization starts
+6. Define hyperparameter search space
+```
+    params:
+      model.optimizer.lr: interval(0.0001, 0.1)
+      datamodule.batch_size: choice(32, 64, 128, 256)
+      model.net.lin1_size: choice(64, 128, 256)
+      model.net.lin2_size: choice(64, 128, 256)
+      model.net.lin3_size: choice(32, 64, 128, 256)
+```
+
+To run the hyperparameter search 
+
+```
+python train.py -m hparams_search=mnist_optuna experiment=mnist
+```
+
+-----------------------
+
+## 🪵 Loggers in Pytorch Lightning
+
+Read [here](https://pytorch-lightning.readthedocs.io/en/stable/extensions/logging.html)
+
+1. CometLogger - Track your parameters, metrics, source code and more using Comet.
+
+2. CSVLogger - Log to local file system in yaml and CSV format.
+
+3. MLFlowLogger - Log using MLflow.
+
+4. NeptuneLogger - Log using Neptune.
+
+5. TensorBoardLogger - Log to local file system in TensorBoard format.
+
+6. WandbLogger - Log using Weights and Biases.
+
+Remote Logging with PyTorch Lightning: https://pytorch-lightning.readthedocs.io/en/stable/common/remote_fs.html (Links to an external site.)
 
 
-### NOTE
+### To Enable loggers -
 
-✨💡✨ One folder or file cannot be tracked by both - git or dvc. 
+```train.yaml``` had logger specified as null (default).
+
+To enable logger, we should add below line to the yaml file specific to experiment in experiment folder (for e.g. ```mnist.yaml``` in experiment folder) to use particular say, tensorboard logger.
+```
+- override /logger: tensorboard.yaml
+```
+
+Run and check
+```
+python3 src/train.py experiment=mnist
+````
+
+Go to tensorboard folder within logs folder (bind_all : someone else can access in same network)
+```
+tensorboard --logdir . --bind_all
+```
+It will open in local browser..
+
+NOTE : We can change in train.yaml also which will become a default for all whether you run with experiment or without
+
+To Log to multiple logger we have ```many_logger.yaml``` in logger folder. This contains list of loggers say - tensorboard, csvlogger, mlflow etc. We could 
+```
+- override /logger: many_loggers.yaml
+```
+
+Say ```MLFLOW``` is also enabled via ```many_loggers.yaml``` file
+
+Run the experiment again ```python3 src/train.py experiment=mnist```
+
+Go to the mlflow folder inside the logs (must have child folder created - ./mlruns/mlruns/meta.yaml) and run below command.
+You will be able to see the logs for hyperparams, accuracy etc.
+```
+mlflow ui
+```
+
+------------
+
+## Add step wise logging
+In training class, in training step, while saving logs set ```on_step=True``` as shown below -
+
+```
+def training_step(self, batch: Any, batch_idx: int):
+        loss, preds, targets = self.step(batch)
+
+        # update and log metrics
+        self.train_loss(loss)
+        self.train_acc(preds, targets)
+        self.log("train/loss", self.train_loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("train/acc", self.train_acc, on_step=True, on_epoch=True, prog_bar=True)
+```
+
+## log hp_metric in tensorboard as validation loss
+
+
+------------
+
+# NOTES :
+
+✨💡✨ One folder or file cannot be tracked by both - git or dvc- Yes/No?
 
 To fix for gitpod.io
 
