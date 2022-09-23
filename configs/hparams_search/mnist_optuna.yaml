@@ -46,6 +46,7 @@ hydra:
     # define hyperparameter search space
     params:
       model.optimizer.lr: interval(0.0001, 0.1)
+      model.optimizer._target_: choice(torch.optim.SGD, torch.optim.Adam, torch.optim.RMSprop)
       datamodule.batch_size: choice(32, 64, 128, 256)
       model.net.lin1_size: choice(64, 128, 256)
       model.net.lin2_size: choice(64, 128, 256)

@@ -31,6 +31,8 @@ class MNISTLitModule(LightningModule):
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False, ignore=["net"])
         
+        #self.logger.log_hyperparams(self.hparams, {"hp/metric_1": 0, "hp/metric_2": 0})
+        
         self.net = net
 
         # loss function
@@ -53,9 +55,9 @@ class MNISTLitModule(LightningModule):
         return self.net(x)
 
     def on_train_start(self):
+        #self.logger.log_hyperparams(self.hparams) : no need?
         # by default lightning executes validation step sanity checks before training starts,
         # so we need to make sure val_acc_best doesn't store accuracy from these checks
-        self.logger.log_hyperparams(self.hparams)
         self.val_acc_best.reset()
 
     def step(self, batch: Any):
@@ -91,6 +93,7 @@ class MNISTLitModule(LightningModule):
         self.val_acc(preds, targets)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log("val/acc", self.val_acc, on_step=False, on_epoch=True, prog_bar=True)
+        #self.log("hp_metric", loss) #placed in validation epoch end
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -100,6 +103,9 @@ class MNISTLitModule(LightningModule):
         # log `val_acc_best` as a value through `.compute()` method, instead of as a metric object
         # otherwise metric would be reset by lightning after each epoch
         self.log("val/acc_best", self.val_acc_best.compute(), prog_bar=True)
+
+        loss = self.val_loss.compute() #add validation loss to hp_metric
+        self.log("hp_metric", loss)
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)

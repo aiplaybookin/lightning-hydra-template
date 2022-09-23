@@ -278,7 +278,7 @@ mlflow ui
 
 ------------
 
-## Add step wise logging
+## 1. Add step wise logging
 In training class, in training step, while saving logs set ```on_step=True``` as shown below -
 
 ```
@@ -292,8 +292,21 @@ def training_step(self, batch: Any, batch_idx: int):
         self.log("train/acc", self.train_acc, on_step=True, on_epoch=True, prog_bar=True)
 ```
 
-## log hp_metric in tensorboard as validation loss
+## 2. log hp_metric in tensorboard as validation loss
 
+## 3. Do a Hyperparam sweep for CIFAR10 dataset with resnet18 from timm.
+
+### Find the best batch_size and learning rate, and optimizer
+
+```
+    # define hyperparameter search space
+    params:
+      model.optimizer.lr: interval(0.0001, 0.1)
+      model.optimizer._target_: choice(torch.optim.SGD, torch.optim.Adam, torch.optim.RMSprop)
+      datamodule.batch_size: choice(64, 128, 256)
+```
+
+- Overrides the model.yaml settings in model folder
 
 ------------
 
@@ -309,3 +322,8 @@ To see all files/folders, size, users and permisions
 ```
 ls -alrth
 ```
+
+
+Run the tests locally using ```pre-commit run —all-files```
+
+This will run all the tests defined in the ```.pre-commit-config.yaml``` file
