@@ -151,3 +151,4 @@ logs/
 .env
 .autoenv
 /data
+/logs

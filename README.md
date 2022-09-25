@@ -114,7 +114,7 @@ A new file ```data.dvc``` md5 hash created to track all changes
 dvc config core.autostage true
 ```
 
-4. **Check remote** where we can push ( this is for git, we need same for dvc)
+4. **Check remote** where we can push/push ( this is for git, we need same for dvc)
 ```
 git remote -v
 ```
@@ -122,7 +122,7 @@ git remote -v
 5. Go and create a new folder ( now in gdrive ), say lightning-hydra
 
 get into the folder and check the url as below - 
-
+https://drive.google.com/drive/u/1/folders/1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A
 https://drive.google.com/drive/u/1/folders/1ts8OwPOtQGnz1aR4KyPQA2k7FbKR5A
 
 folder id - 1ts8OwPOtQGnz1aR4KyPQA2k7FbKR5A
