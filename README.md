@@ -244,19 +244,23 @@ Remote Logging with PyTorch Lightning: https://pytorch-lightning.readthedocs.io/
 ```train.yaml``` had logger specified as null (default).
 
 To enable logger, we should add below line to the yaml file specific to experiment in experiment folder (for e.g. ```mnist.yaml``` in experiment folder) to use particular say, tensorboard logger.
+
 ```
 - override /logger: tensorboard.yaml
 ```
 
 Run and check
+
 ```
 python3 src/train.py experiment=mnist
-````
+```
 
 Go to tensorboard folder within logs folder (bind_all : someone else can access in same network)
+
 ```
 tensorboard --logdir . --bind_all
 ```
+
 It will open in local browser..
 
 NOTE : We can change in train.yaml also which will become a default for all whether you run with experiment or without
@@ -293,32 +297,212 @@ def training_step(self, batch: Any, batch_idx: int):
 ```
 
 ## 2. log hp_metric in tensorboard as validation loss
+```
+def validation_epoch_end(self, outputs: List[Any]):
+      acc = self.val_acc.compute() # get current val acc
+      self.val_acc_best(acc) # update best so far val acc
+
+     # log `val_acc_best` as a value through `.compute()` method, instead of as a metric object
+     # otherwise metric would be reset by lightning after each epoch
+     self.log("val/acc_best", self.val_acc_best.compute(), prog_bar=True)
+
+     loss = self.val_loss.compute() #add validation loss to hp_metric
+     self.log("hp_metric", loss)
+```
 
 ## 3. Do a Hyperparam sweep for CIFAR10 dataset with resnet18 from timm.
-
-### Find the best batch_size and learning rate, and optimizer
-
+### Define hyperparameter search space
 ```
-    # define hyperparameter search space
     params:
       model.optimizer.lr: interval(0.0001, 0.1)
       model.optimizer._target_: choice(torch.optim.SGD, torch.optim.Adam, torch.optim.RMSprop)
       datamodule.batch_size: choice(64, 128, 256)
 ```
 
-- Overrides the model.yaml settings in model folder
+### Find the best batch_size and learning rate, and optimizer ( under limited runs on colab gpu)
+```
+Best Params :
 
-------------
+              Batch size : 64
+
+              Learning rate : 0.068378
+
+              HP_Metric/ Validation Loss : 0.19418
+
+              Optimizer : SGD
+```
+
+### Link to public drive folder dvc :
+
+https://drive.google.com/drive/folders/1t9Vs8OwPOtQGnz1aR4KyPQA2k7FbKR5A?usp=sharing 
+ 
+
+### Link to Tensorboard :
+
+https://tensorboard.dev/experiment/d93drFa9QbaCP4MFK4tv4A/#scalars
+
+
+✨💡✨
+```- Overrides the model.yaml``` settings in model folder
+
+------------------------------
+
+# Deployment for Demos
+
+[Checkout Gradio demo](https://github.com/aiplaybookin/gradio-demo) to get some flavour.
+
+------------------------------
+
+# Add Demo App
+
+Add mnistDemo.py
+
+Script is similar to ```train.py``` or ```eval.py``` structure wise.
+
+Import necessary libraries
+
+Define a function demo which would be called in main with configurations provided by config yaml () -
+a. Checks whether model (check point) path is given or not
+b. Instansiate model for inference (.pth file)
+c. Loads weights, model
+d. Define interface function
+
+```source = "canvas"``` : User can draw and we infer
+```image mode = "L" ```: Single channel (because we using MNIST dataset which is single channel -B&W)
+```invert color = true ```- Because when we use canvas digits are black in color and background in white
+```live = true```: Realtime inferenece applications 
+
+Add gradio in requirements.txt
+```
+gradio==3.3.1
+```
+
+Create a config file ```demoMnist.yaml``` to fetch configurations while running app under config folder ( this is similar to eval.yaml file)
+
+
+Still needs :
+```
+- callbacks: default.yaml
+- experiment: null
+```
+
+To assert : make it mandatory to provide ckpt path use as below -
+```
+ckpt_path: ???
+```
+
+Run
+```
+python src/demoMnist.py ckpt_path=logs/train/runs/2022-09-30_06-02-58/checkpoints/last.ckpt experiment=mnist
+```
+-------------------
+
+### **Drawbacks :**
+We need to provide data module, experiment, trainer, parameters to instansiate the model everytime
+
+Create model - load weights, having model.py (e.g. mnist_module.py)
+
+-------------------
+# TorchScript
+
+TorchScript is a way to create serializable and optimizable models from PyTorch code. Any TorchScript program can be saved from a Python process and loaded in a process where there is no Python dependency.
+
+TorchScript is a statically typed subset of Python that can either be written directly (using the [TORCH.JIT.SCRIPT](https://pytorch.org/docs/stable/generated/torch.jit.script.html#torch.jit.script) decorator) or generated automatically from Python code via **Tracing**. When using tracing, code is automatically converted into this subset of Python by recording only the actual operators on tensors and simply executing and discarding the other surrounding Python code.
+
+In other words -
+***You can export as non python representaion of the model to be loaded by any environment ( e.g. pure c++ )***
+
+Provides Efficient and **Portable** Pytorch production deployment 
+
+[Read more here](https://paulbridger.com/posts/mastering-torchscript/)
+
+[Baics Tutorial](https://pytorch.org/tutorials/beginner/Intro_to_TorchScript_tutorial.html)
+
+
+## Script vs Tracing
+
+```torch.jit.script``` captures both the operations and full conditional logic of your model, whereas ```torch.jit.trace``` will actually run the model with given dummy inputs and it will freeze the conditional logic as per the dummy values provided.
+
+
+You can read about edge cases of Tracing [here:](https://pytorch.org/docs/master/jit.html#tracing-edge-cases)
+
+[Compile your model to TorchSript example](https://pytorch-lightning.readthedocs.io/en/stable/deploy/production_advanced_2.html)
+
+
+```LightningModule``` has a handy method ```to_torchscript()``` that returns a scripted module which you can save or directly use
+
+
+💡If you want to script a different method (export a function with torch script or trace), you can decorate the method with ```torch.jit.export()```
+
+
+
+### Modifications for Advanced Deployments (Torch Script, demoMnistScript.py):
+
+Imports in mnist_module.py file to export the tranformations also
+```
+import torch.nn.functional as F
+from torchvision import transforms as T
+```
+
+Add below lines above forward function in mnist_module.py.
+```
+self.predict_transform = T.Normalize((0.1307,), (0.3081,))      
+```
+
+Add below line jst after the forward function, this exports the forward_jit func whenver there is torchscript or trace. Here we are push the necessary transforms also to model instansiation. So that nothing is required.
+```
+@torch.jit.export                     
+    def forward_jit(self, x: torch.Tensor):
+        with torch.no_grad():
+            # transform the inputs
+            x = self.predict_transform(x)
+
+            # forward pass
+            logits = self(x)
+
+            preds = F.softmax(logits, dim=-1)
+
+        return preds
+```
+
+In train.py to save the serialized model (or complied model). Add below line just after - train_metrics = trainer.callback_metrics
+```
+log.info("Scripting Model..")
+
+    scripted_model = model.to_torchscript(method="script")
+    torch.jit.save(scripted_model, f"{cfg.paths.output_dir}/model.script.pt")
+
+    log.info(f"Saving traced model to {cfg.paths.output_dir}/model.script.pt")
+```
+
+
+demoMnistScripted.yaml
+
+```
+# @package _global_
+
+defaults:
+  - _self_
+  - paths: default.yaml
+  - hydra: default.yaml
+
+task_name: "demo_traced"
+
+# checkpoint is necessary for demo
+ckpt_path: ???
+```
+
+-------------------
 
 # NOTES :
 
 ✨💡✨ One folder or file cannot be tracked by both - git or dvc- Yes/No?
 
-To fix for gitpod.io
+To fix for gitpod.io (or just use gitpod in local VS code)
 
 ssh -L 8080:localhost:8080 <ssh string from gitpod>
 
-To see all files/folders, size, users and permisions
+To see all files/folders, size, users and permisions  
 ```
 ls -alrth
 ```
