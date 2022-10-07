@@ -13,6 +13,8 @@ import torch
 import hydra
 import gradio as gr
 from omegaconf import DictConfig
+from torchvision import transforms
+import tarfile
 
 from src import utils
 
@@ -27,6 +29,12 @@ def demo(cfg: DictConfig) -> Tuple[dict, dict]:
         Tuple[dict, dict]: Dict with metrics and dict with all instantiated objects.
     """
 
+    #my_tar = tarfile.open('model.tar.gz')
+    #print(my_tar)
+    #my_tar.extractall()
+    #print('--------**---------')
+    #my_tar.close()
+
     assert cfg.ckpt_path
 
     log.info("Running Demo")
@@ -35,22 +43,25 @@ def demo(cfg: DictConfig) -> Tuple[dict, dict]:
     model = torch.jit.load(cfg.ckpt_path)
 
     log.info(f"Loaded Model: {model}")
+    
+    model.eval()
 
-    def recognize_digit(image):
-        if image is None:
-            return None
-        image = torch.tensor(image[None, None, ...], dtype=torch.float32)
-        preds = model.forward_jit(image)
-        preds = preds[0].tolist()
-        return {str(i): preds[i] for i in range(10)}
+    # Labels for CIFAR10 dataset
+    labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'] 
 
-    im = gr.Image(shape=(28, 28), image_mode="L", invert_colors=True, source="canvas")
+    def classify_top10(inp):
+        inp = transforms.ToTensor()(inp).unsqueeze(0)
+        with torch.no_grad():
+            prediction = torch.nn.functional.softmax(model(inp)[0], dim=0)
+            confidences = {labels[i]: float(prediction[i]) for i in range(10)}    
+        return confidences
+    
+    im = gr.Image(shape=(224, 224), type="pil")
 
     demo = gr.Interface(
-        fn=recognize_digit,
+        fn=classify_top10,
         inputs=[im],
-        outputs=[gr.Label(num_top_classes=10)],
-        live=True,
+        outputs=gr.Label(num_top_classes=10),
     )
 
     demo.launch(server_name="0.0.0.0", server_port=8080, share=True)

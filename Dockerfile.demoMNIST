@@ -1,0 +1,24 @@
+FROM python:3.9.13-slim
+
+# Basic setup
+RUN apt update && \
+    apt install --no-install-recommends -y build-essential gcc && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace/project
+
+# Install requirements
+COPY req.txt ./
+
+RUN pip install --no-cache-dir -r req.txt \
+    && rm req.txt
+
+# copy this folder contents to image
+COPY . .
+
+# tell the port number the container should expose
+##EXPOSE 8080
+
+# run the application
+##CMD [ "python3", "src/demoMnistScripted.py" , "ckpt_path=model.script.pt"]

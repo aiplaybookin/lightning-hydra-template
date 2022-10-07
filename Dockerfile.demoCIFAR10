@@ -1,0 +1,27 @@
+FROM python:3.7-slim-buster
+
+# Set working directory
+WORKDIR /workspace/project
+
+# Install requirements
+COPY requirements_cpu.txt ./
+
+RUN pip install --no-cache-dir -r requirements_cpu.txt \
+    && rm requirements_cpu.txt 
+
+# Copy this folder contents to image
+COPY src ./src
+
+COPY configs ./configs
+
+COPY model.script.pt ./
+#COPY ./demo_model/model.tar.gz ./
+
+COPY .git ./
+COPY pyproject.toml ./
+
+# tell the port number the container should expose
+EXPOSE 8080
+
+# run the application
+CMD [ "python3", "src/demoCIFAR10Scripted.py" , "ckpt_path=model.script.pt"]

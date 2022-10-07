@@ -436,9 +436,9 @@ You can read about edge cases of Tracing [here:](https://pytorch.org/docs/master
 
 
 
-### Modifications for Advanced Deployments (Torch Script, demoMnistScript.py):
+### Modifications for Advanced Deployments (Torch Script, demoMnistScripted.py):
 
-Imports in mnist_module.py file to export the tranformations also
+1. Imports in mnist_module.py file to export the tranformations also
 ```
 import torch.nn.functional as F
 from torchvision import transforms as T
@@ -465,7 +465,7 @@ Add below line jst after the forward function, this exports the forward_jit func
         return preds
 ```
 
-In train.py to save the serialized model (or complied model). Add below line just after - train_metrics = trainer.callback_metrics
+2. In train.py to save the serialized model (or complied model). Add below line just after - train_metrics = trainer.callback_metrics
 ```
 log.info("Scripting Model..")
 
@@ -476,7 +476,7 @@ log.info("Scripting Model..")
 ```
 
 
-demoMnistScripted.yaml
+3. demoMnistScripted.yaml
 
 ```
 # @package _global_
@@ -492,7 +492,155 @@ task_name: "demo_traced"
 ckpt_path: ???
 ```
 
+
+Run
+```
+python3 src/demoMnistScripted.py ckpt_path=logs/train/runs/2022-09-30_12-43-23/model.script.pt
+```
 -------------------
+
+## Dockerize the demoMnistScipted
+
+Create a Dockerfile named ```Dockerfile.demoMNIST``` 
+```
+contents
+```
+
+Copy deployable model to root folder ( or some deploy folder)
+```
+cp logs/train/runs/2022-09-30_12-43-23/model.script.pt model.script.pt
+```
+
+Create / add files and folders not required in ```.dockerignore``` : To reduce the docker image size
+```
+logs/
+data/
+tests/
+```
+
+
+
+Docker build by  -
+```
+docker build -f Dockerfile.demoMNIST -t testapp .
+```
+
+Docker run by
+```
+docker run -it -p 8080:8080 testapp:latest
+```
+
+-------------------
+# 4. Deployment for CIPFAR10 Model (using Torch Script)
+-------------------
+
+## Update the scripts
+
+1. In train.py to save the serialized model (or complied model). Add below line just after - train_metrics = trainer.callback_metrics
+```
+log.info("Scripting Model..")
+
+    scripted_model = model.to_torchscript(method="script")
+    torch.jit.save(scripted_model, f"{cfg.paths.output_dir}/model.script.pt")
+
+    log.info(f"Saving traced model to {cfg.paths.output_dir}/model.script.pt")
+```
+
+2. Create a new file ```demoCIFAR0Scripted.yaml``` inside config folder containing following lines of code. It helps set default paths and makes it mandatory to provide model path to load.
+
+```
+# @package _global_
+
+defaults:
+  - _self_
+  - paths: default.yaml
+  - hydra: default.yaml
+
+task_name: "demo_traced"
+
+# checkpoint is necessary for demo
+ckpt_path: ???
+```
+
+3. Train for few epochs ( I did only for on epoch)
+```
+python3 src/train.py experiment=cifar
+```
+
+4. Create a new file ```demoCIFAR10Scripted.py``` under ```src``` folder 
+
+- Create a Gradio app interface
+- Loads the model
+- It must accept image from user, and give the top 10 predictions
+
+```
+import pyrootutils
+
+from typing import List, Tuple
+
+import torch
+import hydra
+import gradio as gr
+from omegaconf import DictConfig
+from torchvision import transforms
+
+from src import utils
+```
+5. test 
+```
+python3 src/demoCIFAR10Scripted.py ckpt_path=logs/train/runs/2022-10-05_05-12-27/model.script.pt
+```
+
+## Dockerize and Push to Dockerhub
+
+1. Create a dockerfile named ```Dockerfile.demoCIFAR10```
+
+2. Create a requirements file named ```requirements_cpu.txt```
+
+3. Docker build by  -
+```
+docker build -f Dockerfile.demoCIFAR10 -t vikashkr117/gradio-cifar-app .
+```
+
+4. Docker run by
+```
+docker run -it -p 8080:8080 vikashkr117/gradio-cifar-app:latest
+```
+
+5. Login to docker hub from CLI
+```
+docker login -u vikashkr117
+```
+At the password prompt, enter the personal access token.
+
+6. Push the image 
+```
+docker push vikashkr117/gradio-cifar-app
+```
+
+## Instructions to use app 
+### (via docker image)
+
+1. Go to [Play with Docker](https://labs.play-with-docker.com) and start a session. Pull the image using below command
+```
+docker pull vikashkr117/gradio-cifar-app
+```
+
+2. Run the pulled docker image
+```
+docker run -it -p 8080:8080 vikashkr117/gradio-cifar-app:latest
+```
+
+3. Copy the gradio link provide e.g. https://<......>.gradio.app and paste in web browser
+
+4. Place an image and click on submit, you will see top 10 classes and probabilities associated with it.
+
+5. Cheers 🥂
+-------------------
+
+python3 src/demoCIFAR10Scripted.py ckpt_path=logs/train/runs/2022-10-05_05-12-27/model.script.pt
+
+Ref : https://gradio.app/image_classification_in_pytorch/
 
 # NOTES :
 
@@ -511,3 +659,55 @@ ls -alrth
 Run the tests locally using ```pre-commit run —all-files```
 
 This will run all the tests defined in the ```.pre-commit-config.yaml``` file
+
+To look into docker files :-
+```
+docker container run --rm -it testapp /bin/sh
+```
+
+
+⚠️ You should not start a container just to see the image contents. For instance, you might want to look for malicious content, not run it. Use "create" instead of "run";
+
+```
+docker create --name="tmp_$$" image:tag
+docker export tmp_$$ | tar t
+docker rm tmp_$$
+```
+
+Dockerfile ignore 
+```
+# 1. Ignore everything
+**
+
+# 2. Add files and directories that should be included
+!configs/**
+!src/**
+!package.json
+!package-lock.json
+
+# 3. Bonus step: ignore any unnecessary files that may be inside those allowed directories in 2
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+```
+
+docker image history
+
+RUN apt install -y \
+    build-essential \
+    git \
+    curl \
+    ca-certificates \
+    wget \
+    && rm -rf /var/lib/apt/lists
+
+# tell the port number the container should expose
+EXPOSE 8080
+
+# run the application
+CMD [ "python3", "src/demoMnistScripted.py" , "ckpt_path=model.script.pt"]
+
+1. Create a tar file 
+
+tar -czvf model.tar.gz demo_model

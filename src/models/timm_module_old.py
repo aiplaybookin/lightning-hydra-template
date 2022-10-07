@@ -4,9 +4,6 @@ import torch
 from pytorch_lightning import LightningModule
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.classification.accuracy import Accuracy
-#from timm.data import resolve_data_config
-#from timm.data.transforms_factory import create_transform 
-from torchvision import transforms as T
 
 
 class TIMMLitModule(LightningModule):
@@ -52,28 +49,8 @@ class TIMMLitModule(LightningModule):
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
 
-        # for deployment 
-        self.predict_transform = T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  
-        
-
     def forward(self, x: torch.Tensor):
         return self.net(x)
-    
-    @torch.jit.export                     # this exports the forward_jit func whenver there is torchscript or trace
-    def forward_jit(self, x: torch.Tensor):
-        # transform the inputs
-        x = self.predict_transform(x)
-        #x = x.unsqueeze(0)
-
-        with torch.no_grad():
-
-            # forward pass
-            out = self(x)
-
-            probabilities = torch.nn.functional.softmax(out[0], dim=0)
-            #confidences = {categories[i]: float(probabilities[i]) for i in range(1000)}
-
-        return probabilities
 
     def on_train_start(self):
         # by default lightning executes validation step sanity checks before training starts,
