@@ -5,16 +5,9 @@
 Survey of different methods of model explainability in Computer Vision
 
 ## Integrated Gradients
-<img src="outputs/IG_Predicted: brain coral.png" align="center" >
-<img src="outputs/IG_Predicted: bullet train.png" align="center" >
-<img src="outputs/IG_Predicted: bullfrog.png" align="center" >
-<img src="outputs/IG_Predicted: dragonfly.png" align="center" >
-<img src="outputs/IG_Predicted: grasshopper.png" align="center" >
-<img src="outputs/IG_Predicted: mushroom.png" align="center" >
-<img src="outputs/IG_Predicted: pizza.png" align="center" >
-<img src="outputs/IG_Predicted: pool table.png" align="center" >
-<img src="outputs/IG_Predicted: seashore.png" align="center" >
-<img src="outputs/IG_Predicted: warplane.png" align="center" >
+<img src="outputs/1_IG1.png" align="center" >
+<img src="outputs/1_IG2.png" align="center" >
+<img src="outputs/1_IG3.png" align="center" >
 
 
 
