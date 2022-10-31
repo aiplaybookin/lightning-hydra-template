@@ -4,6 +4,25 @@
 
 Survey of different methods of model explainability in Computer Vision
 
+</td></tr></table>
+
+<table align="center"><tr><td align="left" width="9999">
+
+# To generate explainability results
+
+1. Generate images from [DreamStudio by Stability AI (using stable diffusion model)](https://beta.dreamstudio.ai/)
+2. Place images in ```logbook/images/``` folder
+3. Run ```explain.py``` with model path or use timm models ( can also refer notebook placed in ```notebook``` folder)
+   - Resulting images will be generated and stored in ```logbook/outputs/```
+4. Run ```robustness.py```
+   - Resulting images will be generated and stored in ```logbook/outputs/```
+
+</td></tr></table>
+
+<table align="center"><tr><td align="center" width="9999">
+
+# Results 
+
 ## Integrated Gradients
 <img src="outputs/1_IG1.png" align="center" width="450" >
 <img src="outputs/1_IG2.png" align="center" width="450" >

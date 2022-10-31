@@ -2,6 +2,9 @@
 
 # Distributed Training
 
+
+</td></tr></table>
+
 ### To do
 Model: timm.create_model("vit_base_patch32_224", pretrained=True)
 
@@ -19,4 +22,7 @@ Epochs: >25
 7. Add the maximum batch_size number you were able to achieve
 8. Upload Tensorboard logs to Tensorboard.dev and add link to it
 
-</td></tr></table>
+
+# IN Progress 🙏🏽
+
+<img src="outputs/ec2_cpu.png" align="center" width="550" >
