@@ -10,10 +10,14 @@ Survey of different methods of model explainability in Computer Vision
 <img src="outputs/1_IG3.png" align="center" >
 
 ## Integrated Gradients with Noise Tunnel
-<img src="outputs/2_IGN1.png" align="center" width="250" >
-<img src="outputs/2_IGN2.png" align="center" width="250" >
-<img src="outputs/2_IGN3.png" align="center" width="250" >
+<img src="outputs/2_IGN1.png" align="center" width="350" >
+<img src="outputs/2_IGN2.png" align="center" width="350" >
+<img src="outputs/2_IGN3.png" align="center" width="350" >
 
+## SHAP
+<img src="outputs/3_SHAP1.png" align="center" width="450" >
+<img src="outputs/3_SHAP2.png" align="center" width="450" >
+<img src="outputs/3_SHAP3.png" align="center" width="450" >
 
 
 
