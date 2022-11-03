@@ -97,5 +97,7 @@ MASTER_PORT=29500 MASTER_ADDR=172.31.47.238 WORLD_SIZE=2 NODE_RANK=1 python src/
 
 While Running epoch Output can be seen on master node
 
+## Others -
+
 Use tmux sessions
 [Refer](https://github.com/aiplaybookin/MLOps/tree/main/05%20AWS%20Deployment#TMUX)
