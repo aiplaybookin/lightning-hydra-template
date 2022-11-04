@@ -82,13 +82,12 @@ A10. Master Node, can change port and try. Place Private IP addr
 
 Use ```hostname``` to get Private IPv4 addresses 
 ```
-MASTER_PORT=29500 MASTER_ADDR=<Private IPv4 addresses> WORLD_SIZE=2 NODE_RANK=0 python src/train.py trainer=ddp trainer.devices=1 trainer.num_nodes=2
+MASTER_PORT=29500 MASTER_ADDR=<Private IPv4 addresses> WORLD_SIZE=2 NODE_RANK=0 python src/train.py trainer=ddp trainer.devices=1 trainer.num_nodes=2 
 ```
 
-MASTER_PORT=29500 MASTER_ADDR=172.31.31.106 WORLD_SIZE=2 NODE_RANK=0 python src/train.py trainer=ddp trainer.devices=1 trainer.num_nodes=2 trainer.default_root_dir=$(date +%Y-%m-%d_%H-%M-%S) callbacks.model_checkpoint.dirpath=logs/train/runs 
+MASTER_PORT=29500 MASTER_ADDR=172.31.34.209 WORLD_SIZE=2 NODE_RANK=0 python src/train.py experiment=cifar trainer=ddp trainer.devices=1 trainer.num_nodes=2 trainer.default_root_dir=$(date +%Y-%m-%d_%H-%M-%S) callbacks.model_checkpoint.dirpath=logs/train/runs datamodule.batch_size=256 trainer.min_epochs=1 trainer.max_epochs=1
 
-MASTER_PORT=29500 MASTER_ADDR=172.31.31.106 WORLD_SIZE=2 NODE_RANK=1 python src/train.py trainer=ddp trainer.devices=1 trainer.num_nodes=2 trainer.default_root_dir=$(date +%Y-%m-%d_%H-%M-%S) callbacks.model_checkpoint.dirpath=logs/train/runs 
-
+MASTER_PORT=29500 MASTER_ADDR=172.31.34.209 WORLD_SIZE=2 NODE_RANK=1 python src/train.py experiment=cifar trainer=ddp trainer.devices=1 trainer.num_nodes=2 trainer.default_root_dir=$(date +%Y-%m-%d_%H-%M-%S) callbacks.model_checkpoint.dirpath=logs/train/runs datamodule.batch_size=256 trainer.min_epochs=1 trainer.max_epochs=1
 
 
 MASTER_PORT=29500 MASTER_ADDR=172.31.47.238 WORLD_SIZE=2 NODE_RANK=0 python src/train.py trainer=ddp trainer.devices=1 trainer.max_epochs=2 trainer.num_nodes=2 trainer.default_root_dir=$(date +%Y-%m-%d_%H-%M-%S) callbacks.model_checkpoint.dirpath=logs/train/runs 

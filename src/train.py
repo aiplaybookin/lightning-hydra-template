@@ -31,7 +31,7 @@ root = pyrootutils.setup_root(
 # ------------------------------------------------------------------------------------ #
 
 from typing import List, Optional, Tuple
-
+import os
 import torch 
 import hydra
 import pytorch_lightning as pl
@@ -97,14 +97,16 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
 
     train_metrics = trainer.callback_metrics
 
-    log.info("Scripting Model..")
+    #---Comment Scripting for DDP ---
 
-    scripted_model = model.to_torchscript(method="script")
-    torch.jit.save(scripted_model, f"{cfg.paths.output_dir}/model.script.pt")
+    ##log.info("Scripting Model..")
 
-    log.info(f"Saving traced model to {cfg.paths.output_dir}/model.script.pt")
+    ##scripted_model = model.to_torchscript(method="script")
+    ##torch.jit.save(scripted_model, f"{cfg.paths.output_dir}/model.script.pt")
 
-    if cfg.get("test"):
+    ##log.info(f"Saving traced model to {cfg.paths.output_dir}/model.script.pt")
+
+    if cfg.get("test") and os.environ['NODE_RANK'] == 0:
         log.info("Starting testing!")
         ckpt_path = trainer.checkpoint_callback.best_model_path
         if ckpt_path == "":
@@ -112,6 +114,8 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
             ckpt_path = None
         trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
         log.info(f"Best ckpt path: {ckpt_path}")
+    else :
+        log.info("Skipping testing on Slave nodes!")
 
     test_metrics = trainer.callback_metrics
 
