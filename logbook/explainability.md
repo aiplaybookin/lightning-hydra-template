@@ -24,9 +24,9 @@ Survey of different methods of model explainability in Computer Vision
 # Results 
 
 ## Integrated Gradients
-<img src="outputs/1_IG1.png" align="center" width="450" >
-<img src="outputs/1_IG2.png" align="center" width="450" >
-<img src="outputs/1_IG3.png" align="center" width="450" >
+<img src="outputs/1_IG1.png" align="center" width="550" >
+<img src="outputs/1_IG2.png" align="center" width="550" >
+<img src="outputs/1_IG3.png" align="center" width="550" >
 
 ## Integrated Gradients with Noise Tunnel
 <img src="outputs/2_IGN1.png" align="center" width="450" >
@@ -52,6 +52,17 @@ Note : Grad CAM++ works well with multiple items, see mushrooms
 <img src="outputs/5_GRADCAM2.png" align="center" width="450" >
 <img src="outputs/5_GRADCAM3.png" align="center" width="450" >
 
+# Model Robustness
+
+Use of [Albumentation](https://albumentations.ai) for transformations
+- Random Pixel Dropout
+- Random Noise ( Gaussian)
+- Random Brightness
+
+<img src="outputs/6_Robust0.png" align="center" width="550" >
+<img src="outputs/6_Robust1.png" align="center" width="550" >
+<img src="outputs/6_Robust2.png" align="center" width="550" >
+<img src="outputs/6_Robust3.png" align="center" width="550" >
 
 </td></tr></table>
 
