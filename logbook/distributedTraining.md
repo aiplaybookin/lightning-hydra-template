@@ -127,9 +127,15 @@ MASTER_PORT=29501 MASTER_ADDR=172.31.9.56 WORLD_SIZE=2 NODE_RANK=1 python src/tr
 
 While Running epoch Output can be seen on master node
 
-### A 
+### A12
 100% utilization of GPUs in both nodes
+
 <img src="outputs/gpu_usage.png" align="center" width="550" >
+
+### A13
+val/acc_best: 0.637
+
+<img src="outputs/epoch_end.png" align="center" width="550" >
 
 ## Others -
 
