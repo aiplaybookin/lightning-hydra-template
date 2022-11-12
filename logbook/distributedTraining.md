@@ -141,7 +141,7 @@ While Running epoch Output can be seen on master node
 
 - Epochs : ```10```
 
-- Val/Acc_best: 0.637
+- Val/Acc_best: ```0.637```
 
 - Execution time: ```42 mins```, [logs here](./resources/exec_time.log)
 
