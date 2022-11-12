@@ -1,0 +1,86 @@
+model:
+  _target_: src.models.timm_module.TIMMLitModule
+  optimizer:
+    _target_: torch.optim.Adam
+    _partial_: true
+    lr: 0.002
+    weight_decay: 0.0
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    _partial_: true
+    mode: min
+    factor: 0.1
+    patience: 10
+  net:
+    _target_: timm.create_model
+    model_name: vit_base_patch32_224
+    pretrained: true
+    num_classes: 10
+model/params/total: 87462922
+model/params/trainable: 87462922
+model/params/non_trainable: 0
+datamodule:
+  _target_: src.datamodules.cifar10_datamodule.CIFAR10DataModule
+  data_dir: /home/ubuntu/lightning-hydra-template/data/
+  batch_size: 384
+  train_val_test_split:
+  - 45000
+  - 5000
+  - 10000
+  num_workers: 0
+  pin_memory: false
+trainer:
+  _target_: pytorch_lightning.Trainer
+  default_root_dir: 2022-11-09_18-28-44
+  min_epochs: 1
+  max_epochs: 10
+  accelerator: gpu
+  devices: 1
+  deterministic: false
+  strategy: ddp_spawn
+  num_nodes: 2
+  sync_batchnorm: true
+  gradient_clip_val: 0.5
+callbacks:
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: logs/train/runs
+    filename: epoch_{epoch:03d}
+    monitor: val/acc
+    verbose: false
+    save_last: true
+    save_top_k: 1
+    mode: max
+    auto_insert_metric_name: false
+    save_weights_only: false
+    every_n_train_steps: null
+    train_time_interval: null
+    every_n_epochs: null
+    save_on_train_epoch_end: null
+  early_stopping:
+    _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val/acc
+    min_delta: 0.0
+    patience: 100
+    verbose: false
+    mode: max
+    strict: true
+    check_finite: true
+    stopping_threshold: null
+    divergence_threshold: null
+    check_on_train_epoch_end: null
+  model_summary:
+    _target_: pytorch_lightning.callbacks.RichModelSummary
+    max_depth: -1
+  rich_progress_bar:
+    _target_: pytorch_lightning.callbacks.RichProgressBar
+extras:
+  ignore_warnings: false
+  enforce_tags: true
+  print_config: true
+task_name: train
+tags:
+- cifar10
+- timm
+ckpt_path: null
+seed: 12345

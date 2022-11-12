@@ -133,7 +133,23 @@ While Running epoch Output can be seen on master node
 <img src="outputs/gpu_usage.png" align="center" width="550" >
 
 ### A13
-val/acc_best: 0.637
+- Model : ```vit_base_patch32_224```
+
+- Dataset : ```CIFAR10```
+
+- Batch Size : ```384```, two instance so 192 on each 
+
+- Epochs : ```10```
+
+- Val/Acc_best: 0.637
+
+- Execution time: ```42 mins```, [logs here](./resources/exec_time.log)
+
+- Configs [here](./resources/config_tree.log)
+
+- Tensorboard logs [here](./resources/tensorboard/)
+
+- Model placed in S3 : [download](s3://mlops-tutorials/epoch_009.ckpt)
 
 <img src="outputs/epoch_end.png" align="center" width="550" >
 
