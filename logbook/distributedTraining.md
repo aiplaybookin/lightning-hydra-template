@@ -149,7 +149,7 @@ While Running epoch Output can be seen on master node
 
 - Tensorboard logs [here](./resources/tensorboard/)
 
-- Model placed in S3 : [download](s3://mlops-tutorials/epoch_009.ckpt)
+- Model placed in S3 : [download](https://mlops-tutorials.s3.ap-southeast-2.amazonaws.com/model.script.pt)
 
 <img src="outputs/epoch_end.png" align="center" width="550" >
 
