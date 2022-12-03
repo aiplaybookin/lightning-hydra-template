@@ -14,7 +14,7 @@ Survey of different methods of model explainability in Computer Vision
 2. Place test images in ```logbook/images/``` folder
 3. 
 
-- Refer notebook placed in ```notebook``` folder [here]()
+- Run notebook placed in ```notebook``` folder [here](https://github.com/aiplaybookin/lightning-hydra-template/tree/main/logbook/notebook)
 
 OR
 
