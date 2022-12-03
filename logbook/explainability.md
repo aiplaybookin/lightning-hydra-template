@@ -12,9 +12,15 @@ Survey of different methods of model explainability in Computer Vision
 
 1. Generate images from [DreamStudio by Stability AI (using stable diffusion model)](https://beta.dreamstudio.ai/)
 2. Place test images in ```logbook/images/``` folder
-3. Run ```python3 src/explain.py``` with model path or use timm models ( can also refer notebook placed in ```notebook``` folder)
+3. 
+
+- Refer notebook placed in ```notebook``` folder [here]()
+
+OR
+
+- Run ```python3 src/explain.py``` with model path or use timm models
    - Resulting images will be generated and stored in ```logbook/outputs/```
-4. Run ```python3 src/robustness.py```
+- Run ```python3 src/robustness.py```
    - Resulting images will be generated and stored in ```logbook/outputs/```
 
 </td></tr></table>
